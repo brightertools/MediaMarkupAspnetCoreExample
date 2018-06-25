@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>0.0.1</Version>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
+    <FileVersion>0.0.0.1</FileVersion>
+    <Description>Media Markup API Client Library.
+www.mediamarkup.com</Description>
+    <Copyright>© 2017 Brighter Tools Ltd</Copyright>
+    <PackageReleaseNotes>Pre-release, contact support@mediamarkup.com for more info.</PackageReleaseNotes>
+    <Authors>Brighter Tools Ltd</Authors>
+    <Company>Brighter Tools Ltd</Company>
+    <PackageLicenseUrl>http://brightertools.com/licenses/MediaMarkupAPIClientLibraryLicense.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://www.mediamarkup.com</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/brightertools/MediaMarkupApiClient</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Polly" Version="6.0.1" />
+  </ItemGroup>
+
+</Project>
