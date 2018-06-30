@@ -3,10 +3,13 @@ using Newtonsoft.Json;
 
 namespace MediaMarkup.Api.Models
 {
+    /// <summary>
+    /// User Create Parameters
+    /// </summary>
     public class UserCreateParameters
     {
         /// <summary>
-        /// ApprovalsCreateParameters
+        /// User Create Parameters
         /// </summary>
         public UserCreateParameters()
         {

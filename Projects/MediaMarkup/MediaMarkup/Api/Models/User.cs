@@ -3,56 +3,57 @@
 namespace MediaMarkup.Api.Models
 {
     /// <summary>
-    /// User Update Parameters
+    /// Api User Info object
     /// </summary>
-    public class UserUpdateParameters
+    public class User
     {
         /// <summary>
-        /// User Update Parameters
+        /// Api User Info object
         /// </summary>
-        public UserUpdateParameters()
+        public User()
         {
-            Id = string.Empty;
-            FirstName = string.Empty;
-            LastName = string.Empty;
-            EmailAddress = string.Empty;
-            WebLoginEnabled = false;
         }
 
         /// <summary>
-        /// User Id of the User to update (required)
+        /// User Id
         /// </summary>
         [JsonProperty("id")]
         public string Id { get; set; }
 
         /// <summary>
-        /// First Name
+        /// User First Name
         /// </summary>
         [JsonProperty("firstName")]
         public string FirstName { get; set; }
 
         /// <summary>
-        /// Last Name
+        /// User Last Name
         /// </summary>
         [JsonProperty("lastName")]
         public string LastName { get; set; }
 
         /// <summary>
-        /// Email Address
+        /// User EmailAddress
         /// </summary>
         [JsonProperty("email")]
         public string EmailAddress { get; set; }
 
         /// <summary>
-        /// Specifies the User Role, Administrator, Manager, Reviewer
+        /// User Role
         /// </summary>
         [JsonProperty("userRole")]
         public UserRole UserRole { get; set; }
 
         /// <summary>
-        /// Enables login via mediamarkup.com on tenant account
+        /// Web Login Enabled
         /// </summary>
         [JsonProperty("webLoginEnabled")]
         public bool WebLoginEnabled { get; set; }
+
+        /// <summary>
+        /// Account Owner
+        /// </summary>
+        [JsonProperty("accountOwner")]
+        public bool AccountOwner { get; set; }
     }
 }

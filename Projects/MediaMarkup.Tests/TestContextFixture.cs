@@ -11,21 +11,18 @@ namespace MediaMarkup.Tests
 {
     public class TestContextFixture : IDisposable
     {
-        private readonly ITestOutputHelper Output;
-
         public IConfiguration Configuration { get; set; }
         
-        public readonly IServiceProvider _serviceProvider;
+        public readonly IServiceProvider ServiceProvider;
         
         public IApiClient ApiClient { get; set; }
+
         public Settings Settings { get; set; }
 
         public string AccessToken { get; set; }
 
-        public TestContextFixture(ITestOutputHelper output)
+        public TestContextFixture()
         {
-            Output = output;
-            
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
@@ -41,9 +38,9 @@ namespace MediaMarkup.Tests
             services.AddOptions();
             services.Configure<Settings>(Configuration.GetSection("MediaMarkup"));
             services.AddMediaMarkup();
-            _serviceProvider = services.BuildServiceProvider();
+            ServiceProvider = services.BuildServiceProvider();
 
-            Settings = _serviceProvider.GetService<IOptions<Settings>>().Value;
+            Settings = ServiceProvider.GetService<IOptions<Settings>>().Value;
         }
 
         public void Dispose()

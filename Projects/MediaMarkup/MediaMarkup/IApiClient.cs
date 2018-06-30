@@ -6,7 +6,7 @@ namespace MediaMarkup
     public interface IApiClient
     {
         /// <summary>
-        /// Access Token
+        /// Access token to be stored and re-used by application
         /// </summary>
         string AccessToken { get; }
 
@@ -23,8 +23,13 @@ namespace MediaMarkup
         Task<bool> Authenticated();
 
         /// <summary>
-        /// Approvls API Client
+        /// Approvals API Client
         /// </summary>
         IApprovals Approvals { get; }
+
+        /// <summary>
+        /// Users API Client
+        /// </summary>
+        IUsers Users { get; }
     }
 }

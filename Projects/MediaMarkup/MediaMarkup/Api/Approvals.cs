@@ -34,7 +34,7 @@ namespace MediaMarkup.Api
                 return await response.Content.ReadAsJsonAsync<ApprovalListResult>();
             }
 
-            throw new ApiException(response.StatusCode, $"Approvals.GetList: {response.ReasonPhrase}");
+            throw new ApiException("Approvals.GetList", response.StatusCode, await response.Content.ReadAsStringAsync());
         }
 
         public async Task<ApprovalCreateResult> Create(string filePath, ApprovalCreateParameters approvalCreateParameters)
@@ -95,7 +95,7 @@ namespace MediaMarkup.Api
                     return await response.Content.ReadAsJsonAsync<ApprovalCreateResult>();
                 }
 
-                throw new ApiException(response.StatusCode, $"Approvals.Create: {response.ReasonPhrase}");
+                throw new ApiException("Approvals.Create", response.StatusCode, await response.Content.ReadAsStringAsync());
             }
         }
 

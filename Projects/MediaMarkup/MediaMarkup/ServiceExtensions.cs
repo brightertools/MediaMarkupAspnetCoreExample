@@ -9,7 +9,6 @@ namespace MediaMarkup
         {
             services.AddScoped<IApprovals, Approvals>();
             services.AddScoped<IApiClient, ApiClient>();
-
         }
     }
 }

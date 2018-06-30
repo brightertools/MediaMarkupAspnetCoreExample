@@ -10,7 +10,7 @@ namespace MediaMarkup
         {
             try
             {
-                var tokenParts = token.Split(".");
+                var tokenParts = token.Split('.');
 
                 if (tokenParts.Length != 3)
                 {

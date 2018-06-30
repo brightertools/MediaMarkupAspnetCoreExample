@@ -55,18 +55,18 @@ namespace MediaMarkup.Api.Models
         /// Users in group who have approved file
         /// </summary>
         [JsonProperty("approvedByUsers")]
-        public List<UserInfo> ApprovedByUsers { get; set; }
+        public List<User> ApprovedByUsers { get; set; }
 
         /// <summary>
         /// Users in group with no decisions on file
         /// </summary>
         [JsonProperty("noDecisionsByUsers")]
-        public List<UserInfo> NoDecisionsByUsers { get; set; }
+        public List<User> NoDecisionsByUsers { get; set; }
 
         /// <summary>
         /// Uusers in group who have not approved file
         /// </summary>
         [JsonProperty("notApprovedByUsers")]
-        public List<UserInfo> NotApprovedByUsers { get; set; }
+        public List<User> NotApprovedByUsers { get; set; }
     }
 }

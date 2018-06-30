@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -9,38 +10,42 @@ using MediaMarkup.Api.Models;
 
 namespace MediaMarkup
 {
+    /// <summary>
+    /// API Client for accessing Media Markup API
+    /// </summary>
     public class ApiClient : IApiClient
     {
         /// <summary>
         /// Settings, passed in or loaded from appSettings
         /// </summary>
-        private Settings ClientSettings { get; set; }
+        private Settings ClientSettings { get; }
 
         /// <summary>
         /// HttpClient for making API calls
         /// </summary>
         private HttpClient HttpClient { get; set; }
 
-        /// <summary>
-        /// Access token to be stored and re-used by application
-        /// </summary>
+        /// <inheritdoc/>
         public string AccessToken { get; set; }
 
-        /// <summary>
-        /// Approvals Client
-        /// </summary>
+        /// <inheritdoc/>
         public IApprovals Approvals { get; private set; }
 
+        /// <inheritdoc/>
+        public IUsers Users { get; private set; }
+
         /// <summary>
-        /// Creates the Media Markup Client
+        /// Creates the Media Markup API Client with the specified settings
         /// </summary>
         /// <param name="clientSettings"></param>
         /// <param name="token"></param>
         public ApiClient(Settings clientSettings, string token = null)
         {
-            AccessToken = token;
-
             ClientSettings = clientSettings;
+
+            CheckSettings();
+
+            AccessToken = token;
 
             if (!ClientSettings.ApiBaseUrl.EndsWith("/"))
             {
@@ -48,10 +53,45 @@ namespace MediaMarkup
             }
         }
 
-        /// <summary>
-        /// Gets an authentication token and initializes the API clients
-        /// </summary>
-        /// <returns></returns>
+        private void CheckSettings()
+        {
+            if (string.IsNullOrWhiteSpace(ClientSettings.ClientId))
+            {
+                throw new Exception("ClientId setting not set");
+            }
+
+            if (string.IsNullOrWhiteSpace(ClientSettings.SecretKey))
+            {
+                throw new Exception("SecretKey setting not set");
+            }
+
+            if (string.IsNullOrWhiteSpace(ClientSettings.ApiBaseUrl))
+            {
+                throw new Exception("ApiBaseUrl setting not set");
+            }
+
+            if (ClientSettings.UseRetryLogic == true)
+            {
+                if (string.IsNullOrWhiteSpace(ClientSettings.RetryStatusCodes))
+                {
+                    throw new Exception("RetryStatusCodes not set");
+                }
+
+                try
+                {
+                    if (!ClientSettings.RetryStatusCodes.Any())
+                    {
+                        throw new Exception("RetryStatusCodes not set");
+                    }
+                }
+                catch
+                {
+                    throw new Exception("RetryStatusCodes not valid");
+                }
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task<string> InitializeAsync()
         {
             if (string.IsNullOrWhiteSpace(AccessToken) || !AccessTokenPayloadIsValid())
@@ -63,13 +103,12 @@ namespace MediaMarkup
 
             Approvals = new Approvals(HttpClient);
 
+            Users = new Users(HttpClient);
+
             return AccessToken;
         }
 
-        /// <summary>
-        /// Tests if client is authenticated using the current access token
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public async Task<bool> Authenticated()
         {
             var response = await HttpClient.PostAsync($"{ClientSettings.ApiBaseUrl}Authentication/Authenticated/", null);
@@ -83,7 +122,16 @@ namespace MediaMarkup
         /// <returns></returns>
         private HttpClient GetHttpClient()
         {
-            var apiClient = new HttpClient(new HttpClientRetryHandler(new HttpClientHandler())) {BaseAddress = new Uri(ClientSettings.ApiBaseUrl)};
+            HttpClient apiClient;
+
+            if (ClientSettings.UseRetryLogic == true && ClientSettings.RetryStatusCodesList.Any())
+            {
+                apiClient = new HttpClient(new HttpClientRetryHandler(new HttpClientHandler(), ClientSettings.RetryStatusCodesList)) {BaseAddress = new Uri(ClientSettings.ApiBaseUrl)};
+            }
+            else
+            {
+                apiClient = new HttpClient{BaseAddress = new Uri(ClientSettings.ApiBaseUrl)};
+            }
 
             apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             apiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
@@ -94,7 +142,7 @@ namespace MediaMarkup
         private async Task<string> GetAccessToken()
         {
             // Get new httpclient here for connection without authorization using client is and secret
-            var apiClient = new HttpClient{ BaseAddress = new Uri(ClientSettings.ApiBaseUrl) };
+            var apiClient = new HttpClient {BaseAddress = new Uri(ClientSettings.ApiBaseUrl)};
 
             var response = await apiClient.PostAsJsonAsync($"{ClientSettings.ApiBaseUrl}Authentication/GetToken/", new AccessTokenRequestParameters
             {
@@ -110,11 +158,11 @@ namespace MediaMarkup
 
             AccessToken = null;
 
-            throw new Exception($"{(int)response.StatusCode}, {response.StatusCode}, {response.ReasonPhrase}");
+            throw new ApiException("ApiClient.GetAccessToken", response.StatusCode, await response.Content.ReadAsStringAsync());
         }
 
         /// <summary>
-        /// Validates token payload, checks sub & exp (client id and expiry date)
+        /// Validates token payload, checks sub (client id) & exp (expiry date)
         /// </summary>
         /// <returns></returns>
         private bool AccessTokenPayloadIsValid()

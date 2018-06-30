@@ -1,10 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web;
 using MediaMarkup.Api.Models;
 using MediaMarkup.Core;
 
@@ -19,29 +15,87 @@ namespace MediaMarkup.Api
             ApiClient = apiClient;
         }
 
-        public async Task<UserInfo> GeByIdt(string id)
+        /// <inheritdoc />
+        public async Task<User> Create(UserCreateParameters parameters)
         {
-            throw new NotImplementedException();
+            var response = await ApiClient.PostAsJsonAsync("Users/Create/", parameters);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsJsonAsync<User>();
+            }
+
+            throw new ApiException("Users.Create", response.StatusCode, await response.Content.ReadAsStringAsync());
         }
 
-        public async Task<UserInfo> GetByEmail(string email)
+        /// <inheritdoc />
+        public async Task<User> GeById(string id, bool throwExceptionIfNull = false)
         {
-            throw new NotImplementedException();
+            var response = await ApiClient.GetAsync($"Users/GetById?id={id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsJsonAsync<User>();
+            }
+
+            if (throwExceptionIfNull)
+            {
+                throw new ApiException("Users.GetById", response.StatusCode, await response.Content.ReadAsStringAsync());
+            }
+
+            return null;
         }
 
-        public async Task<UserCreateResult> Create(UserCreateParameters userCreateParameters)
+        /// <inheritdoc />
+        public async Task<User> GetByEmail(string email, bool throwExceptionIfNull = false)
         {
-            throw new NotImplementedException();
+            var response = await ApiClient.GetAsync($"Users/GetByEmail/?email={WebUtility.UrlEncode(email)}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsJsonAsync<User>();
+            }
+
+            if (throwExceptionIfNull)
+            {
+                throw new ApiException("Users.GetByEmail", response.StatusCode, await response.Content.ReadAsStringAsync());
+            }
+
+            return null;
         }
 
-        public async Task<UserUpdateResult> Update(UserUpdateParameters userUpdateParameters)
+        /// <inheritdoc />
+        public async Task<User> Update(UserUpdateParameters parameters)
         {
-            throw new NotImplementedException();
+            var response = await ApiClient.PostAsJsonAsync("Users/Update/", parameters);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsJsonAsync<User>();
+            }
+
+            throw new ApiException("Users.Update", response.StatusCode, await response.Content.ReadAsStringAsync());
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task UpdatePassword(UserUpdatePasswordParameters parameters)
         {
-            throw new NotImplementedException();
+            var response = await ApiClient.PostAsJsonAsync("Users/UpdatePassword/", parameters);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ApiException("Users.UpdatePassword", response.StatusCode, await response.Content.ReadAsStringAsync());
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task Delete(string id)
+        {
+            var response = await ApiClient.DeleteAsync($"Users/Delete/?id={id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ApiException("Users.Delete", response.StatusCode, await response.Content.ReadAsStringAsync());
+            }
         }
     }
 }

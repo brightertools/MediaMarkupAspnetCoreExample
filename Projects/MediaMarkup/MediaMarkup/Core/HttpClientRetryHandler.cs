@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,16 +10,17 @@ namespace MediaMarkup.Core
 {
     public class HttpClientRetryHandler : DelegatingHandler
     {
-        public HttpClientRetryHandler(HttpMessageHandler innerHandler) : base(innerHandler)
+        private List<int> RetryStatusCodes { get; set; }
+
+        public HttpClientRetryHandler(HttpMessageHandler innerHandler, List<int> retryStatusCodes) : base(innerHandler)
         {
+            RetryStatusCodes = retryStatusCodes;
         }
 
-        protected override Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request,
-            CancellationToken cancellationToken) => Policy
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => Policy
             .Handle<HttpRequestException>()
             .Or<TaskCanceledException>()
-            .OrResult<HttpResponseMessage>(x => !x.IsSuccessStatusCode)
+            .OrResult<HttpResponseMessage>(x => RetryStatusCodes.Contains((int)x.StatusCode) )
             .WaitAndRetryAsync(5, retryCount => TimeSpan.FromSeconds(Math.Pow(3, retryCount)))
             .ExecuteAsync(() => base.SendAsync(request, cancellationToken));
     }
